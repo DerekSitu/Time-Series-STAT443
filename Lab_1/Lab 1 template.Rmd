@@ -1,0 +1,102 @@
+---
+title: 'STAT 443: Lab 1'
+author: 'Derek Situ (62222807)'
+date: "17 January, 2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#if you do not have the package, type install.packages("name_of_the_package")
+library(knitr)
+library(tseries)
+```
+
+### Question 1
+
+(a) 
+
+```{r, echo=TRUE}
+dat <- read.csv("LakeLevels.csv", header = TRUE)
+head(dat, 10)
+tail(dat, 10)
+names(dat)
+plot(dat$LakeLevel, ylab="Lake level (m)", main="Daily lake levels")
+```
+This scatter plot is not exactly how we want to represent our time series data
+because the x-axis is not very meaningful as simply an observation index. It 
+would be more helpful if the x-axis described a time scale. Also, we would like
+to join our observations with a line to approximate a continuous time process.
+
+(b)
+
+```{r, echo=TRUE}
+# check if dat is a ts object
+is.ts(dat)
+# create time series object
+x <- ts(data = dat$LakeLevel, start=c(2007, 1), frequency=365)
+```
+
+
+(c)
+
+```{r, echo=TRUE}
+# plot
+plot(x, xlab="Year", ylab="Lake level (m)", main="Daily lake levels")
+```
+This new plot now has an x-axis that describes the time scale. In the old plot,
+it was harder to tell what time each observation was connected with since there
+were only observation indices. Also, each observation is joined by a line, 
+giving the appearance of a continuous time process.
+
+This time series shows seasonal variation, with generally deeper lake levels in
+the middle of the year, and shallower lake levels at the start and ends of
+years.
+
+
+### Question 2
+
+(a) 
+
+```{r, echo=TRUE}
+# 200 independent observations
+set.seed(2022)
+white_noise <- rnorm(200)
+
+# create ts
+y <- ts(rnorm(200))
+```
+
+
+(b)
+
+```{r, echo=TRUE}
+# plot
+plot(y, xlab="Time", main="White noise process")
+
+# This gives the amount of observations that are outside [-2, 2]
+sum(abs(y) > 2)
+```
+For a standard normal distribution, we expect about 5% of the observations to
+be outside the range [-2, 2]. Thus with 200 observations we expect 10 of them to 
+be outside [-2, 2].
+
+(c)
+
+```{r, echo=TRUE}
+# create the sample autocorrelation function
+acf(y, lag.max=30, plot = F)
+acf(y, lag.max=30)
+```
+The sample acf oscillates around 0 with no obvious period and no clear trend in 
+any direction. The sample correlation coefficients are very close to 0 
+(except at lag=0, since the coefficient is equal to 1 in such a case) since 
+each observation was generated independently of other observations. In fact,
+about 95% of coefficients are within $\pm\frac{2}{\sqrt{200}}$. If we
+include up to lag=199 we see that the acf slowly decays to 0.
+```{r, echo=TRUE}
+acf(y, lag.max=199)
+```
+

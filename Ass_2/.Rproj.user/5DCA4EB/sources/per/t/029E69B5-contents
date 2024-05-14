@@ -1,0 +1,196 @@
+---
+title: "Assignment 2"
+author: "Derek Situ (62222807)"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+### (1a)
+We will show that the process $X_{t} = \frac{2}{5}X_{t-1} + \frac{1}{4}X_{t_2} - \frac{1}{10}X_{t-3} + Z_{t}$ is stationary by showing that the roots of the
+characteristic polynomial lie outside the unit circle in the complex plane.
+We can rearrange to get
+$$Z_{t} = X_{t} - \frac{2}{5}X_{t-1} - \frac{1}{4}X_{t-2} + \frac{1}{10}X_{t-3}$$
+$$ = (1 - \frac{2}{5}B - \frac{1}{4}B^2 + \frac{1}{10}B^3)X_{t} .$$
+Now we have to find $b$ such that $$1 - \frac{2}{5}b - \frac{1}{4}b^2 + \frac{1}{10}b^3 = 0 .$$
+We multiply both sides by $20$ to work with integers, and group the terms like so:
+$$(2b^3 - 5b^2) - (8b - 20) = 0$$
+$$b^2(2b-5) - 4(2b - 5) = 0$$
+$$(b^2 - 4)(2b - 5) = 0$$
+Now we can see that this is satisfied when $b = -2, 2, \frac{5}{2}$. And since
+all of these lie outside the unit circle on the complex plane, $\{X_{t}\}_{t \in \mathbb{N}}$ is stationary.
+
+### (1b)
+First we multiply both sides of $X_{t} = \frac{2}{5}X_{t-1} + \frac{1}{4}X_{t_2} - \frac{1}{10}X_{t-3} + Z_{t}$ by $X_{t-k}$ for $k = 1, 2, 3$ to get 3 equations
+
+\begin{equation}
+X_{t}X_{t-1} = \frac{2}{5}X_{t-1}X_{t-1} + \frac{1}{4}X_{t-2}X_{t-1} - \frac{1}{10}X_{t-3}X_{t-1} + Z_{t}X_{t-1}
+\end{equation}
+
+\begin{equation}
+X_{t}X_{t-2} = \frac{2}{5}X_{t-1}X_{t-2} + \frac{1}{4}X_{t-2}X_{t-2} - \frac{1}{10}X_{t-3}X_{t-2} + Z_{t}X_{t-2}
+\end{equation}
+
+\begin{equation}
+X_{t}X_{t-3} = \frac{2}{5}X_{t-1}X_{t-3} + \frac{1}{4}X_{t-2}X_{t-3} - \frac{1}{10}X_{t-3}X_{t-3} + Z_{t}X_{t-3}
+\end{equation}
+
+Next we take expectation of both sides of each equation to get equations 4-6
+\begin{equation}
+\gamma (1) = \frac{2}{5}\gamma (0) + \frac{1}{4} \gamma (1) - \frac{1}{10}\gamma 
+(2)
+\end{equation}
+
+$$\gamma (2) = \frac{2}{5} \gamma (1) + \frac{1}{4} \gamma (0) - \frac{1}{10} 
+\gamma (1)$$
+
+\begin{equation}
+ = \frac{1}{4}\gamma (0) + \frac{3}{10}\gamma (1)
+\end{equation}
+
+\begin{equation}
+\gamma (3) = \frac{2}{5}\gamma (2) + \frac{1}{4} \gamma (1) - \frac{1}{10}\gamma 
+(0)
+\end{equation}
+
+Substituting (5) into (4) yields
+$$\gamma (1) = \frac{2}{5} \gamma (0) + \frac{1}{4} \gamma (1) - \frac{1}{10}
+[\frac{1}{4} \gamma (0) + \frac{3}{10} \gamma (1)]$$
+and after some simple algebraic manipulations we see
+$$\gamma (1) = \frac{150}{312} \gamma (0) .$$
+Dividing $\gamma (1)$, as well as equations (5) and (6), by $\gamma (0)$ yields
+
+$$\rho (1) = \frac{\frac{150}{312} \gamma (0)}{\gamma (0)}$$
+\begin{equation}
+ = \frac{150}{312} = 0.4807692
+\end{equation}
+
+$$\rho (2) = \frac{3}{10} \rho (1) + \frac{\frac{1}{4} \gamma (0)}{\gamma (0)}$$
+\begin{equation}
+ = \frac{3}{10} (\frac{150}{312}) + \frac{1}{4} = 0.3942308
+\end{equation}
+
+$$\rho (3) = \frac{2}{5} \rho (2) + \frac{1}{4} \rho (1) - \frac{\frac{1}{10} \gamma (0)}{\gamma (0)}$$
+\begin{equation}
+ = \frac{2}{5} [\frac{3}{10} (\frac{150}{312}) + \frac{1}{4}] + \frac{1}{4} (\frac{150}{312}) - \frac{1}{10} = 0.1778846
+\end{equation}
+ 
+Now we wish to find the roots d such that $d^3 - \frac{2}{5}d^2 - \frac{1}{4}d + \frac{1}{10} = 0$. We find the roots in the same fashion as in question (1a):
+$$20d^3 - 8d^2 - 5d + 2 = 0$$
+$$4d^2(5d-2) - (5d-2) = 0$$
+$$(4d^2-1)(5d-2) = 0$$
+We see that this is satisfied when $d = - \frac{1}{2}, \frac{2}{5}, \frac{1}{2} .$
+Armed with the values of $\rho (1), \rho (2), \rho (3), d_{1}, d_{2}, d_{3}$ we 
+can solve for $A_{1}, A_{2}, A_{3}$ in the following system of equations:
+
+$$\rho (1) = A_{1} (\frac{-1}{2}) + A_{2} (\frac{2}{5}) + A_{3} (\frac{1}{2})$$
+$$\rho (2) = A_{1} (\frac{-1}{2})^2 + A_{2} (\frac{2}{5})^{2} + A_{3} (\frac{1}{2})^2$$
+$$\rho (3) = A_{1} (\frac{-1}{2})^3 + A_{2} (\frac{2}{5})^3 + A_{3} (\frac{1}{2})^3$$
+
+We can represent this system of equations as a matrix and reduce it to identify $A_{1}, A_{2}$, and $A_{3}$: 
+``` {r, echo = TRUE}
+library(pracma)
+d <- c(-1/2, 2/5, 1/2)
+rho <- c(0.4807692, 0.3942308, 0.1778846)
+mat <- matrix(c(d, rho[1], d^2, rho[2], d^3, rho[3]),
+              nrow = 3, ncol = 4, byrow = TRUE)
+A <- rref(mat)[,4]
+A
+```
+
+We see that $A_{1} = 0.1794873$, $A_{2} = -1.6025639$, and $A_{3} = 2.4230768$
+so that 
+$$\rho (h) = 0.1794873 (\frac{-1}{2})^{|h|} - 1.6025639 (\frac{2}{5})^{|h|} + 2.4230768 (\frac{1}{2})^{|h|} .$$
+
+### (1c)
+``` {r, echo = TRUE}
+# simulate Xt
+set.seed(123)
+sim <- arima.sim(list(ar = 2/5, 1/4, -1/10), n = 2000, sd = sqrt(1.96))
+
+# plot the sample acf
+acf(sim, lag.max = 10)
+
+# plot the theoretical acf
+rho_h <- function(h) {
+  A[1] * d[1] ^ h + A[2] * d[2] ^ h + A[3] * d[3] ^ h
+}
+acf_theory <- c(1)
+for (i in 2:11) {
+  acf_theory[i] <- rho_h(i-1)
+}
+plot(x = c(0:10), y = acf_theory, type = "h", xlab = "Lag", ylab = "acf",
+     main = "Theoretical ACF")
+```
+
+## Question 2
+### (2a)
+We can rewrite the process as
+$$(1-\frac{7}{10} B)X_t = (1-\frac{1}{10}B)Z_t$$
+
+where $(1-\frac{7}{10}B) = \phi(B)$ and $(1-\frac{1}{10}B) = \theta (B)$. Then
+the roots $b_1$ and $b_2$ of $\phi(B)$ and $\theta (B)$ are $\frac{10}{7}$ and 
+$10$, both of which have modulus greater than unity, so the process is 
+stationary and invertible.
+
+### (2b)
+We first identify the polynomial $\psi (B) = \frac{\theta (B)}{\phi (B)} = \frac{1-\frac{1}{10}B}{1-\frac{7}{10}B}$ which can be expanded to the geometric sum
+$$\psi (B) = (1-\frac{1}{10}B)[1+\frac{7}{10}B+(\frac{7}{10})^2B^2+...]$$
+$$ = [1+ \frac{7}{10} B+ ( \frac{7}{10} )^2B^2+...] - \frac{1}{10}[B+\frac{7}{10}B^2 + (\frac{7}{10})^2B^3+...]$$
+$$ = 1 + \sum_{j=1}^\infty [0.7^j - 0.1(0.7)^{j-1}]B^j$$
+$$ = 1 + \sum_{j=1}^\infty(0.7)^{j-1}(0.6)B^j$$ 
+
+Then the model can be expressed as a pure MA process $X_t = \psi(B)Z_t$ or 
+$$X_t = [1 + \sum_{j=1}^\infty(0.7)^{j-1}(0.6)B^j]Z_t .$$
+
+### (2c)
+We first identify the polynomial $\pi(B) = \frac{\phi(B)}{\theta(B)} = \frac{1-0.7B}{1-0.1B}$ which can be expanded to the geometric sum 
+$$ \pi(B) = (1-0.7B)(1+0.1B+0.1^2B^2+...)$$
+$$ = 1+0.1B+0.1^2B^2+...) - 0.7(B+0.1B^2+0.1^2B^3+...)$$
+$$ = 1 + \sum_{i=1}^{\infty}[0.1^i-0.7(0.1)^{i-1}]B^i$$
+$$ = 1 + \sum_{i=1}^{\infty}(0.1)^{i-1}(-0.6)B^i$$
+
+Then the model can be expressed as a pure AR process $Z_t = \pi(B)X_t$ or
+$$Z_t = [1 + \sum_{i=1}^{\infty}(0.1)^{i-1}(-0.6)B^i]X_t .$$
+
+### (2d)
+A useful fact to recall from (2b) is that 
+$$X_t = [1 + \sum_{j=1}^\infty(0.7)^{j-1}(0.6)B^j]Z_t .$$
+$$ = Z_t + 0.6(Z_{t-1} + 0.7Z_{t-2} + 0.7^2Z_{t-3} + ...) .$$
+The autocorrelation function at lag h is given by
+$$\rho(h) = \frac{Cov(X_t,X_{t+h})}{Var(X_t)}$$
+
+where
+$${Cov(X_t,X_{t+h})} = E[(Z_t + \sum_{i=0}^{\infty}(0.6)(0.7)^iZ_{t-i-1)} * (Z_{t+h} + \sum_{j=0}^{\infty}(0.6)(0.7)^jZ_{t+h-j-1})] ,$$
+
+and noting that $E(Z_{t-i-1} * Z_{t+h-j-1}) = \sigma^2$ when $j=h+i$, and 0
+otherwise. 
+
+We also have that
+$$Var(X_t) = Var(Z_t) + 0.6^2Var(Z_{t-1} + 0.7Z_{t-2} + 0.7^2Z_{t-3} + ...)$$
+$$ = \sigma^2 + 0.6^2(\sigma^2 + 0.7^2 \sigma^2 + 0.7^4 \sigma^2 + ...)$$
+$$ = \sigma^2 + \frac{0.6^2 \sigma^2}{1-0.7^2} .$$
+
+Thus 
+$$\rho(h) = \frac{E[(Z_t + \sum_{i=0}^{\infty}(0.6)(0.7)^iZ_{t-i-1)} * (Z_{t+h} + \sum_{j=0}^{\infty}(0.6)(0.7)^jZ_{t+h-j-1})]}{\sigma^2 + \frac{0.6^2 \sigma^2}{1-0.7^2}}$$ 
+
+again noting that $E(Z_{t-i-1} * Z_{t+h-j-1}) = \sigma^2$
+when $j=h+i$, and 0 otherwise. 
+
+## Question 3
+Let $\{X_t\}$ be a SARIMA$(2, 1, 0)\times(0, 1 ,2)_{12}$ process:
+$$(1-\alpha_1 B^1 - \alpha_2 B^2)W_t = (1+\beta_1 B^{12} + \beta_2 B^{24})Z_t$$
+where $W_t = (1-B^{12})[(1-B)X_t]$. We will use this fact later but will keep the $W_t$ term for now. Distributing the terms gives
+$$W_t - \alpha_1 W_{t-1} - \alpha_2 W_{t-2} = Z_t + \beta_1 Z_{t-12} + \beta_2
+Z_{t-24}$$ and now writing $W_t$ in terms of $X_t$ gives
+$$X_t - X_{t-1} - X_{t-12} + X_{t-13} - \alpha_1 (X_{t-1} - X_{t-2} - X_{t-13}
++ X_{t-14}) - \alpha_2 (X_{t-2} - X_{t-3} - X_{t-14} + X_{t-15}) = Z_t + 
+\beta_1 Z_{t-12} + \beta_2 Z_{t-24} .$$
+
+Without a need to simplify further we can see that this is an ARMA$(15,24)$ 
+process.

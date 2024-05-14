@@ -1,0 +1,12 @@
+---
+title: "STAT 443 Lab 7"
+author: "Derek Situ (62222807)"
+date: "3/7/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+

@@ -1,0 +1,125 @@
+---
+title: "STAT 443 Lab 10"
+author: "Derek Situ"
+date: '2022-03-28'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+sigma2 <- 4
+```
+
+
+# Question 1
+## (1a)
+```{r}
+plot(
+  rep(sigma2/pi, pi), 
+  type = "l", 
+  main = "Spectral density function", 
+  ylab = "f(w)")
+```
+
+## (1b)
+```{r}
+Z_100 <- arima.sim(list(), n = 100, sd = sqrt(sigma2))
+pgram1 <- spec.pgram(Z_100, log = "no")
+mean(pgram1$spec)/pi # mean of periodogram
+```
+
+The true spectrum is constant at $\frac{4}{\pi}$ while the periodogram varies a lot more. The mean of the periodogram is quite close to $\frac{4}{\pi}$.
+
+## (1c)
+```{r}
+Z_1000 <- arima.sim(list(), n = 1000, sd = sqrt(sigma2))
+pgram2 <- spec.pgram(Z_1000, log = "no")
+mean(pgram2$spec)/pi # mean of periodogram
+```
+
+When we increase the sample size, there is more variation which we see as more spikes in the plot. However, we see that the mean of the periodogram this time is even closer to the mean of the spectrum than in (1b).
+
+## (1d)
+```{r}
+for (i in 1:2) {
+  Z_100 <- arima.sim(list(), n = 100)
+  spec.pgram(Z_100, log = "no")
+  Z_1000 <- arima.sim(list(), n = 1000)
+  spec.pgram(Z_1000, log = "no")
+}
+```
+
+After repeating (b) and (c) we can kind of see that the expected value of the periodogram seems to get closer to the true spectrum as N increases. However, as N increases, the variability increases which we can see as more spikes in the periodogram. Formally, this means the periodogram is unbiased but is not consistent.
+
+# Question 2
+## (2a)
+```{r}
+beta <- -0.9
+w <- seq(0, pi, by = 0.01 * pi)
+fw <- 1/pi * (sigma2 + beta^2 * sigma2 + 2 * (beta * sigma2 * cos(w)))
+plot(x = w, y = fw, main = "Spectral density function", type = "l")
+```
+
+## (2b)
+```{r}
+X_sim100 <- arima.sim(list(ma = beta), 100, sd = sqrt(sigma2))
+pgram3 <- spec.pgram(X_sim100)
+```
+
+If we were to smooth this periodogram with a rolling average, it could have a similar shape as the true spectrum. The periodogram just has a lot more spikes.
+
+## (2c)
+```{r}
+X_sim1000 <- arima.sim(list(ma = beta), 1000, sd = sqrt(sigma2))
+spec.pgram(X_sim1000)
+```
+
+Just like in question 1, when we increase the sample size, we see more spikes and dips when we increase the sample size. The overall shape is quite similar to the spectrum.
+
+## (2d)
+```{r}
+for (i in 1:2) {
+  X_sim100 <- arima.sim(list(ma = beta), 100, sd = sqrt(sigma2))
+  spec.pgram(X_sim100)
+  X_sim1000 <- arima.sim(list(ma = beta), 1000, sd = sqrt(sigma2))
+  spec.pgram(X_sim1000)
+}
+```
+
+After repeating (b) and (c) we can see that as N increases, the variability increases which we can see as more spikes in the periodogram. We also see that the overall shape of the periodogram is quite similar to the spectrum. 
+
+# Question 3
+## (3a)
+```{r}
+spect <- 2^2 / (pi * (1 - 1.6 * cos(w) + 0.8^2))
+plot(x = w, y = spect, type = "l", main = "Spectral density function")
+```
+
+## (3b)
+```{r}
+Xt_sim100 <- arima.sim(list(ar = 0.8), 100, sd = sqrt(sigma2))
+spec.pgram(Xt_sim100)
+```
+
+Although the periodogram seems to be decreasing over time like the spectrum, the shape is only somewhat similar.
+
+## (3c)
+```{r}
+Xt_sim1000 <- arima.sim(list(ar = 0.8), 1000, sd = sqrt(sigma2))
+spec.pgram(Xt_sim1000)
+```
+
+Again, although the periodogram seems to be decreasing over time like the spectrum, the shape is only somewhat similar There are more spikes and dips compared to the $N = 100$ case.
+
+## (3d)
+```{r}
+for (i in 1:2) {
+  Xt_sim100 <- arima.sim(list(ar = 0.8), 100, sd = sqrt(sigma2))
+  spec.pgram(Xt_sim100)
+  Xt_sim1000 <- arima.sim(list(ar = 0.8), 1000, sd = sqrt(sigma2))
+  spec.pgram(Xt_sim1000)
+}
+```
+
+The periodogram looks somewhat similar to the spectrum. We notice that when we increase the sample size, we see more variation (spikes and dips) in the periodogram.

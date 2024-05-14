@@ -1,0 +1,167 @@
+---
+title: "STAT 443 Assignment 4"
+author: "Derek Situ"
+date: '2022-04-03'
+output:
+  pdf_document: 
+    fig_caption: yes
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+## 1a
+The power spectrum of $\{X_t\}_{t\in\mathbb{Z}}$ is
+$$ f(\omega) = \frac{1}{\pi}\left[\gamma(0)+2\sum_{k=1}^\infty\gamma(k)cos(\omega k)\right] $$
+where
+$$\gamma(0) = 1\sigma^2 + 0.7^2\sigma^2 + 0.2^2\sigma^2 + 0.1^2\sigma^2 = 1.54$$
+since $\sigma^2 = 1.$ Then,
+$$\gamma(1) = 0.7 + 0.2\times0.7 - 0.1\times0.2 = 0.82,$$
+$$\gamma(2) = 0.2 - 0.1\times0.7 = 0.13,$$
+$$\gamma(3) = -0.1,$$
+and $$\gamma(k) = 0, \space \forall k>3.$$
+Then 
+$$f(\omega)=\frac{1}{\pi}\left[1.54+2(0.82cos(\omega)+0.13cos(2\omega)-0.1cos(3\omega))\right].$$
+
+## 1b
+$$f^*(\omega)=\frac{f(\omega)}{\gamma(0)}=\frac{1}{1.54\pi}\left[1.54+2(0.82cos(\omega)+0.13cos(2\omega)-0.1cos(3\omega))\right]$$
+
+## 1c
+```{r}
+omega <- seq(0, pi, by = 0.01*pi)
+norm_spect <- 1/(1.54*pi) * (1.54 + 2*(0.82*cos(omega) + 0.13*cos(2*omega) -
+                                         0.1*cos(3*omega)))
+plot(x = omega, y = norm_spect, 
+     type = "l", 
+     xlab = "w", 
+     ylab = "normalized f(w)", 
+     main = "Normalized spectral density function")
+
+```
+The normalized spectral density function is high for low frequencies and decreases as omega increases.
+
+# Question 2
+## 2a
+**Proof: $f_W(\omega) = f_X(\omega) + f_Y(\omega)$**
+
+From the definition of a spectrum,
+$$f_W(\omega) = \frac{1}{\pi}\left[Var(W_t)+2\sum_{k=1}^{\infty}Cov(W_{t+k}, W_t)cos(\omega k)\right]$$
+where
+$$Var(W_t) = Var(X_t + Y_t) = Var(X_t) + Var(Y_t) + 2Cov(X_t,Y_t)$$
+$$ = Var(X_t) + Var(Y_t)$$ by independence of X and Y, and
+$$Cov(W_{t+k}, W_t)=Cov(X_{t+k}+Y_{t+k},X_t+Y_t)$$
+$$=Cov(X_{t+k},X_t) + Cov(Y_{t+k},Y_t) + Cov(X_{t+k},Y_t) + Cov(Y_{t+k},X_t)$$
+$$=Cov(X_{t+k},X_t) + Cov(Y_{t+k},Y_t)$$ by independence of X and Y. Then,
+$$f_W(\omega)=\frac{1}{\pi}\left[Var(X_t)+Var(Y_t)+2\sum_{k=1}^{\infty}Cov(X_{t+k},X_t)cos(\omega k) + 2\sum_{k=1}^{\infty}Cov(Y_{t+k},Y_t)cos(\omega k)\right]$$
+$$=\frac{1}{\pi}\left[Var(X_t)+2\sum_{k=1}^{\infty}Cov(X_{t+k},X_t)cos(\omega k)
+\right] + \frac{1}{\pi}\left[Var(Y_t)+ 2\sum_{k=1}^{\infty}Cov(Y_{t+k},Y_t)cos(\omega k)\right]$$
+$$ = f_X(\omega) + f_Y(\omega).$$
+
+**Proof: $W_t = X_t + Y_t$ is stationary**
+
+Assume $\{X_t\}$ and $\{Y_t\}$ are independent and stationary. Then $\forall t$, $E(X_t)=\mu_1$ and $E(Y_t)=\mu_2$ for some constants $\mu_1, \space \mu_2.$ Also, $Var(X_t), Var(Y_t) < \infty,$ and $Cov(X_t,X_{t+h}) = g_1(h)$ and $Cov(Y_t,Y_{t+h}) = g_2(h).$ We want to show that $\{W_t\}$ has a constant mean, a finite variance, and an autocovariance function that only depends on the lag $h.$ And we have $E(W_t) = \mu_1 + \mu_2$ which is a constant, satisfying the first criterion. We also have $Var(W_t) = Var(X_t) + Var(Y_t)$ by independence of $\{X_t\}$ and $\{Y_t\}$, which is the sum of two finite variances, therefore is finite itself. Thus the second criterion is satisfied. Finally, $Cov(W_t, W_{t+h})=Cov(X_{t+k},X_t) + Cov(Y_{t+k},Y_t) = g_1(h) + g_2(h)$ by independence of $\{X_t\}$ and $\{Y_t\}$, which only depends on the lag $h,$ therefore the third and last criterion is satisfied.
+
+## 2b
+Assume X and Y are independent and use the result from (2a) to get
+$$f_W(\omega) = f_X(\omega) + f_Y(\omega)$$ where
+$$f_Y(\omega) = \frac{1}{\pi}\left[Var(Y_t) + 2\sum_{k=1}^\infty Cov(Y_{t+k},Y_t)cos(\omega k)\right]$$
+$$ = \frac{\sigma^2}{\pi}$$ since for a white noise process ${Y_t}$, $Cov(Y_{t+k},Y_t)=0, \space \forall k\ne0.$
+Also,
+$$f_X(\omega) = \frac{1}{\pi}\left[Var(X_t) + 2\sum_{k=1}^\infty Cov(X_{t+k},X_t)cos(\omega k)\right] $$ where
+$$Var(X_t)=Var(\frac{1}{1+0.5B}Z_t) $$
+$$ = Var(Z_t) + 0.5^2Var(Z_{t-1}) + 0.5^4Var(Z_{t-2}) + ...$$
+$$ = \frac{\sigma^2}{1-0.5^2},$$ and
+$$Cov(X_{t+k},X_t) = E\left(\sum_{i=0}^\infty -0.5^iZ_{t-i} \times \sum_{j=0}^\infty -0.5^jZ_{t+k-j}\right)$$
+$$ = \sigma^2\sum_{i=0}^\infty -0.5^{2i+k}$$
+$$ = \sigma^2 \frac{-0.5^k}{1-0.5^2}$$ recalling that $E(Z_{t-i}, Z_{t-j}) \ne 0$ when $i=j$. Then,
+$$f_X(\omega) = \frac{1}{\pi}\left[\frac{\sigma^2}{1-0.5^2}+2\sum_{k=1}^\infty \frac{-0.5^k}{1-0.5^2}\sigma^2cos(\omega k)\right]. $$ With these expressions for $f_Y(\omega)$ and $f_X(\omega)$, we see that
+$$f_W(\omega) = f_Y(\omega) + f_X(\omega)$$
+$$ = \frac{\sigma^2}{\pi} + \frac{1}{\pi}\left[\frac{\sigma^2}{1-0.5^2}+2\sum_{k=1}^\infty \frac{-0.5^k}{1-0.5^2}\sigma^2cos(\omega k)\right].$$
+
+# Question 3
+## 3a
+```{r}
+soi <- read.delim("soi.txt", header = TRUE, sep = "")
+annual <- ts(soi$annual, start=soi$year[1], end = soi$year[length(soi$year)])
+plot(annual, 
+     main = "Annual normalised pressure difference between Tahiti and Darwin",
+     xlab = "Year",
+     ylab = "Normalised pressure difference")
+acf(annual, lag.max = 100, main = "ACF")
+```
+From the plot, we see that the data appears to have some cyclic variation. The acf tails off without pattern.
+
+## 3b
+```{r}
+pgram <- spec.pgram(annual, spans = sqrt(2 * length(annual)))
+pgram$freq[which.max(pgram$spec)] # frequency of the model where periodogram is max
+pgram$freq[which.max(pgram$spec)] * 2*pi # angular frequency where periodogram is max
+```
+The periodogram generally increases until it reaches its maximum, and then generally decreases. It reaches a maximum at an angular frequency of $$\omega = 0.16(2\pi) = 0.32\pi$$ and the wavelength is $$\ell = \frac{2\pi}{\omega} = \frac{2\pi}{0.16(2\pi)} = \frac{1}{0.16} = 6.25.$$
+
+## 3c
+```{r}
+# Inputs: a time series 'ts', and a constant 'p' in {0, 1, ..., N/2}
+# Output: the angular frequency corresponding to p for the time series ts
+get_freq <- function(ts, p) {
+  (2 * pi) * (p / length(ts))
+}
+
+get_freq(annual, 10)
+```
+The output of the function is `r get_freq(annual, 10)`.
+
+## 3d
+```{r}
+# gets the f statistic of a model
+get_fstat <- function(model) {
+  summary(model)[["fstatistic"]][["value"]]
+}
+
+# identifies values of p giving significant Fourier frequencies, 
+#   and puts them in the vector P
+t <- c(1:length(annual))
+P <- c()
+
+for (p in 1:73) {
+  
+  model <- 
+    lm(annual ~ cos(get_freq(annual, p) * t) + sin(get_freq(annual, p) * t) , 
+       data = soi)
+  
+  if (get_fstat(model) > qf(0.95, df1 = 2, df2 = 145 - 3)) {
+    P <- c(P, p)
+  }
+}
+
+P
+```
+The following values of $p$ give significant Fourier frequencies: `r P`
+
+## 3e
+```{r}
+for (p in P) {
+  
+  model_matrix <- 
+    data.frame(cos_term = cos(get_freq(annual, P[1]) * t) +
+                 cos(get_freq(annual, P[2]) * t) +
+                 cos(get_freq(annual, P[3]) * t) +
+                 cos(get_freq(annual, P[4]) * t) +
+                 cos(get_freq(annual, P[5]) * t),
+               sin_term = sin(get_freq(annual, P[1]) * t) +
+                 sin(get_freq(annual, P[2]) * t) +
+                 sin(get_freq(annual, P[3]) * t) +
+                 sin(get_freq(annual, P[4]) * t) +
+                 sin(get_freq(annual, P[5]) * t))
+  
+  model <- 
+    lm(annual ~ cos(get_freq(annual, p) * t) + sin(get_freq(annual, p) * t) , 
+       data = soi)
+  
+}
+```
+
+

@@ -1,0 +1,64 @@
+---
+title: "lab8_DerekSitu"
+author: "Derek Situ (62222807)"
+date: "3/13/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+```{r}
+dat <- read.delim("souvenir.txt", header = FALSE)
+sales <- ts(dat$V1, start = c(1987, 1), frequency = 12)
+```
+
+## Question 1
+```{r}
+plot(sales)
+acf(sales)
+```
+From the plot of the series, we notice a seasonal pattern, and we notice that the variation increases over time. This fits a multiplicative model. The acf also displays the seasonal pattern. There also may be a trend.
+
+## Question 2
+```{r}
+training <- window(sales, start = c(1987, 1), end = c(1992, 12))
+hw_fit <- HoltWinters(training, seasonal = "multiplicative")
+
+c(hw_fit$alpha, hw_fit$beta, hw_fit$gamma)
+```
+The parameters are $\alpha = 0.347, \beta = 0.075, \gamma = 0.571, p = 12$.
+
+``` {r}
+plot(hw_fit)
+```
+
+## Question 3
+```{r}
+predict_test <- predict(hw_fit, 12, prediction.interval = TRUE, level = 0.95)
+plot(predict_test[1:12], type = "l")
+lines(predict_test[13:24], type = "c", col = 4) # plot upper bound
+lines(predict_test[25:36], type = "c", col = 4) # plot lower bound
+legend("topleft", lty = 1, col = c(1, 4),
+       legend = c("Predicted values", "95% confidence interval"))
+
+predict_test[1:3] # predicted values for first 3 months
+```
+The forecast values for the first 3 months of 1993 are `r predict_test[1:3]`.
+
+## Question 4
+```{r}
+data.frame(Observed = sales[73:75], CI_Upper = predict_test[13:15],
+           CI_Lower = predict_test[25:27]) |>
+             dplyr::mutate(Observed_in_CI = 
+                      ((Observed > CI_Lower) & (Observed < CI_Upper)))
+```
+Only the observed value for the first month of 1993 fits inside the 95% confidence interval.
+
+## Question 5
+I would consider a log transformation since the series seems to be increasing exponentially. One useful property of logs is that the log of a product is the sum of the logs of the factors, so using this property we can change this multiplicative model into an additive model.
+

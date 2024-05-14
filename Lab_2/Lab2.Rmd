@@ -1,0 +1,84 @@
+---
+title: "Lab 2"
+author: "Derek Situ (62222807)"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/dsder/OneDrive/Desktop/STAT_443/Lab_2")
+library(zoo)
+```
+
+### Question 1
+## (1a)
+```{r, echo = TRUE}
+# read in and plot the data
+temperature_data <- read.csv("dataTempPG.csv", header = TRUE)
+mean_min <-
+  ts(temperature_data$Annual,
+     start = c(1919, 1),
+     frequency = 1)
+plot(mean_min,
+     main = "Prince George annual mean minimum temperatures",
+     xlab = "Year",
+     ylab = "Degrees (C)")
+```
+This series trends upwards. While there is evident local variation, a constant
+seasonal period cannot be easily identified.
+
+## (1b)
+```{r, echo = TRUE}
+# plot acf function
+acf(mean_min, lag.max = 89)
+```
+We see that the acf slowly decays to 0 as the lag increases because of the 
+trend. At lag = 36, the acf flips over the x-axis to the negative range.
+
+## (1c)
+```{r, echo = TRUE}
+# plot 5-year rolling mean on top of 1968 to 2008 window
+mean_min_1968_2008 <- window(mean_min, start = 1968, end = 2008)
+plot(mean_min_1968_2008,
+     main = "Prince George annual mean minimum temperatures",
+     xlab = "Year",
+     ylab = "Degrees (C)")
+lines(rollmean(mean_min_1968_2008, k = 5), col = 2)
+legend(
+  "topleft",
+  legend = c("Annual temperature", "5-year rolling mean"),
+  lty = 1,
+  col = c(1, 2)
+)
+```
+
+### Question 2
+## (2a)
+```{r, echo = TRUE}
+# read in data and plot acf
+lake_data <- read.csv("LakeLevels.csv", header = TRUE)
+depth <-
+  ts(lake_data$LakeLevel,
+     start = c(2007, 1),
+     frequency = 365)
+acf(depth, lag.max = 1800)
+```
+The acf oscillates around 0 since the series oscillates, and approaches 0 as the 
+lag increases.
+
+## (2b)
+```{r, echo = TRUE}
+# plot moving average decomposition
+depth_decomp <- decompose(depth, type = "additive")
+plot(depth_decomp)
+```
+
+## (2c)
+```{r, echo = TRUE}
+# plot loess decomposition
+depth_loess <- stl(depth, s.window = "periodic")
+plot(depth_loess)
+```
+ 

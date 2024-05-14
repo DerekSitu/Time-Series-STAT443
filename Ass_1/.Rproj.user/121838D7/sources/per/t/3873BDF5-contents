@@ -1,0 +1,151 @@
+---
+title: "Assignment 1"
+author: "Derek Situ (62222807)"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(zoo)
+```
+
+## Question 1
+### (1a)
+```{r, echo = TRUE}
+# read data and plot series
+climate <- read.csv("rimouski_climate_1954_2016.csv", header = TRUE)
+mean_max_temp <- ts(climate$Mean.Max.Temp..Â.C., start = c(1954, 1),
+                     frequency = 12)
+plot(mean_max_temp, main = "Rimouski monthly mean max temperatures",
+     xlab = "Year", ylab = "Degrees (C)")
+```
+The series does not have a clear trend. There is seasonal variation with a 
+period of 1 year or 12 observations. Because of this seasonality, the expected
+value of the observations is not constant, so the series is not stationary.
+An additive model is more appropriate than a multiplicative model to decompose
+this series since the seasonal effect does not seem to scale with the
+temperature itself, so it makes more sense to add the seasonal effect rather
+than multiply it with the trend component.
+
+### (1b)
+```{r, echo = TRUE}
+# identify missing values
+for (i in 1:length(climate$Mean.Max.Temp..Â.C.)) {
+  if (is.na(climate$Mean.Max.Temp..Â.C.[i])) {
+    cat("Missing value at index", i, ":", climate$Date.Time[i], "\n")
+  }
+}
+```
+The LVCF imputation method is not appropriate here because it does not capture
+the different seasonal effect from one month to the next. And since there are
+consecutive missing values, using LVCF will create big gaps where the
+appropriate seasonal effect is not captured. The following code imputes with
+LVCF and creates a plot to demonstrate the weird result it generates.
+```{r, echo = TRUE}
+# plot with LVCF imputation
+mean_max_temp_lvcf <- na.locf(climate$Mean.Max.Temp..Â.C.) |>
+  ts(start = c(1954, 1), frequency = 12)
+
+plot(mean_max_temp_lvcf, 
+     main = "Rimouski monthly mean max temperatures (with LVCF)",
+     xlab = "Year", ylab = "Degrees (C)", xlim = c(1998, 2003))
+```
+Notice that in 2000, where there are 3 consecutive imputed values, the plot
+looks very unusual compared to the observed data. Something that might be better
+could be to carry forward the value from the same month last year. Let's see
+what the plot looks like with this adapted carry-forward method.
+```{r, echo = TRUE}
+# plot with a better carry-forward method
+mean_max_temp_bcf <- climate$Mean.Max.Temp..Â.C.
+for (i in 1:length(mean_max_temp_bcf)) {
+  if (is.na(mean_max_temp_bcf[i])) {
+    mean_max_temp_bcf[i] = mean_max_temp_bcf[i - 12]
+  }
+}
+mean_max_temp_bcf_ts <- ts(mean_max_temp_bcf, start = c(1954, 1),
+                            frequency = 12)
+plot(mean_max_temp_bcf_ts,
+     main = "Rimouski monthly mean max temperatures (w/ better carry-forward)",
+     xlab = "Year", ylab = "Degrees (C)", xlim = c(1998, 2003))
+```
+Notice that when we impute the value from the same month last year, we get a
+much smoother plot that looks more like what we expect based on the non-missing
+data.
+
+### (1c)
+```{r, echo = TRUE}
+# create training set and test set
+training_set <- window(mean_max_temp_bcf_ts, start = c(1954, 1), 
+                       end = c(2015, 12))
+test_set <- window(mean_max_temp_bcf_ts, start = c(2016, 1), end = c(2016, 12))
+# plot decomposition with moving average smoothing
+ma_decomp <- decompose(training_set, type = "additive")
+plot(ma_decomp)
+# plot Loess decomposition
+loess_decomp <- stl(training_set, "periodic")
+plot(loess_decomp)
+```
+
+### (1d)
+```{r, echo = TRUE}
+# fit a linear model to the trend component
+time <- c(1:744)
+trend <- ma_decomp$trend
+lm.fit <- lm(trend ~ time)
+summary(lm.fit)
+
+# 95% confidence interval of the time coefficient
+c(0.0017591 - 1.96 * 0.0001173, 0.0017591 + 1.96 * 0.0001173)
+```  
+We see from the regression output that the trend component is estimated to
+increase by about 0.00176 for every successive month, and that this is
+significant at the 99.9% level. The coefficient is very close to 0, but the 95% 
+confidence interval does not include 0, which is a sign that there is a trend, 
+although it is very small. We also see from the plot of the trend component that
+there is a very slight increase in the trend component over time. Based on this
+information I would use this trend component to make predictions.
+
+### (1e)
+```{r, echo = TRUE}
+time_2 <- c(745:756)
+
+# predict test data set assuming there is a linear trend
+trend_estimate <- 7.6802144 + 0.0017591 * time_2
+prediction_1 <- ts(ma_decomp$seasonal[1:12] + trend_estimate, start = c(2016, 1),
+                 frequency = 12)
+
+# predict test data set assuming there is no trend
+prediction_2 <- ts(ma_decomp$seasonal[1:12] + mean(mean_max_temp_bcf),
+                   start = c(2016, 1), frequency = 12)
+# plot observed values, prediction with trend, prediction without trend
+plot(test_set, 
+     main = "Rimouski monthly mean max temperatures (Test Dataset)",
+     xlab = "Year", ylab = "Degrees (C)")
+lines(prediction_, col = 2)
+lines(prediction_1, col = 4)
+legend(
+  "topleft",
+  legend = c("Observed values", "Predicted values (assuming a linear trend)",
+             "Predicted values (assuming no trend"),
+  lty = 1,
+  col = c(1, 2, 4)
+)
+
+# MSPE of prediction assuming linear trend
+sum((test_set - prediction_1)^2) / length(test_set)
+
+# MSPE of prediction assuming no trend
+sum((test_set - prediction_2)^2) / length(test_set)
+```
+The model assuming that there is a linear trend has a smaller MSPE. This is
+consistent with the plots
+
+```{r, echo = TRUE}
+
+```
+
+```{r, echo = TRUE}
+
+```

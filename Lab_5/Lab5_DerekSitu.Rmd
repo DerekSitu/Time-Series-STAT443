@@ -1,0 +1,91 @@
+---
+title: "STAT 443 Lab 5"
+author: "Derek Situ (62222807)"
+date: "14/02/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+It is an AR(3) process.
+
+## Question 2
+The acf of an AR(p) process should have slow decay and the pacf should cut off
+at lag p, so you can look for these to recognize it and determine its order p.
+
+## Question 3
+``` {r, echo = TRUE}
+set.seed(123456)
+Xt <- arima.sim(list(ar = c(0.8, -1/3, 0.6/sqrt(3))), n = 500, sd = sqrt(0.8))
+plot(Xt)
+```
+
+## Question 4
+``` {r, echo = TRUE}
+acf(Xt)
+```
+It behaves how I expect, as it decays slowly as is typical with AR processes.
+
+## Question 5
+``` {r, echo = TRUE}
+pacf(Xt)
+```
+For an AR(3) process we expect the pacf to cut off at lag 3, and we see that this
+is true for the sample pacf.
+
+## Question 6
+Hypothesis test to see if the mean of the process $\mu = 0$:
+$$H_0 : \mu = 0$$
+Test statistic:
+$$t = \frac{\bar{X} - \mu}{\sigma/\sqrt{n}}$$
+
+Let's test at a 5% significance level, so we reject $H_0$ if $|t| > 1.96$.
+``` {r, echo = TRUE}
+t = mean(Xt)/(sd(Xt)/sqrt(length(Xt)))
+t
+```
+
+Since $|t| < 1.96$, we cannot reject $H_0 : \mu = 0$, thus we will not include
+a mean to fit our model.
+
+``` {r, echo = TRUE}
+# fit an ARIMA(3, 0, 0) or AR(3) model to the simulated time series
+arima_fit <- arima(Xt, order = c(3, 0, 0), include.mean = FALSE)
+
+# Coefficients of the AR model
+arima_fit$coef
+
+# Variance of Zt
+arima_fit$sigma2
+```
+Thus the estimated parameters are $\hat\alpha_1 = 0.775$, $\hat\alpha_2 = -0.310$, $\hat\alpha_3 = 0.342$, $\hat\sigma^2 = 0.795$.
+
+## Question 7
+``` {r, echo = TRUE}
+# fit an ARIMA(3, 0, 0) or AR(3) model to the simulated time series
+arima_fit2 <- arima(Xt, order = c(3, 0, 0), method = "CSS", 
+                    include.mean = FALSE)
+
+# Coefficients of the AR model
+arima_fit2$coef
+
+# Variance of Zt
+arima_fit2$sigma2
+```
+The estimated parameters this time are $\hat\alpha_1 = 0.772$, $\hat\alpha_2 = -0.306$, $\hat\alpha_3 = 0.340$, $\hat\sigma^2 = 0.789$.
+
+Let's compare the parameter estimates. The parameters used to simulate the series are in the column parameters, the estimated parameters from question (6) are in the column estimates1, and the estimated parameters from question (7) are in the column estimates2. The "diff" columns show the difference between the actual parameters and the parameter estimates. We can see that the model fitted with the default method produces closer estimates to the real parameters in this case.
+``` {r, echo = TRUE}
+parameters = c(0.8, -1/3, 0.6/sqrt(3), 0.8)
+estimates1 = c(arima_fit$coef, arima_fit$sigma2)
+estimates2 = c(arima_fit2$coef, arima_fit2$sigma2)
+data.frame(parameters = parameters, estimates1 = estimates1, 
+           estimates2 = estimates2, diff1 = parameters - estimates1, 
+           diff2 = parameters - estimates2, 
+           row.names = c("alpha1", "alpha2", "alpha3", "sigma2"))
+```

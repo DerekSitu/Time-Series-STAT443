@@ -1,0 +1,58 @@
+---
+title: "STAT 443 Lab 7"
+author: "Derek Situ (62222807)"
+date: "3/7/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+```{r}
+temp <- read.csv("TempPG.csv", header = TRUE)
+annual <- ts(temp$Annual, start = 1919, end = 2008)
+ar_fit <- arima(annual, order = c(1, 0, 0))
+c(ar_fit$coef, sigma2 = ar_fit$sigma2)
+```
+The fitted model is $X_t + 1.96 = 0.58(X_{t-1} + 1.96) + Z_t$ with 
+$\sigma^2 = 1.27$. 
+
+## Question 2
+```{r}
+acf(annual, lag.max = 80)
+```
+The acf spikes up and down, having a lot more local maximums and minimums compared to acfs of other AR(1) processes. It also oscillates around 0 less frequently than other AR(1) processes.
+
+## Question 3
+```{r}
+annual_diff <- diff(annual)
+plot(annual_diff)
+acf(annual_diff, lag.max = 80)
+pacf(annual_diff, lag.max = 80)
+```
+The acf and pacf tail off with no pattern, so I would first see how well an ARMA(1,1) fits for the differenced series. Thus for the annual minimum temperature series I would suggest an ARIMA(1,1,1) model. 
+
+## Question 4
+```{r}
+arima_fit <- arima(annual, order = c(1, 1, 1))
+c(arima_fit$coef, sigma2 = arima_fit$sigma2)
+```
+The model is $Y_t = 0.21Y_{t-1} + Z_t - 0.85Z_{t-1}$ where $Y_t = X_t - X_{t-1}$
+and $\sigma^2 = 1.11$.
+
+## Question 5
+```{r}
+tsdiag(arima_fit, gof.lag = 30)
+```
+From the first two plots we see that the residuals seem small and random, which is a good sign in terms of how well the model fits. The p-values for the Ljung-Box test don't seem to fall within 0.05 which is also a good sign
+
+## Question 6
+```{r}
+c(AIC_AR1 = AIC(ar_fit),
+  AIC_ARIMA111 = AIC(arima_fit))
+```
+Since the ARIMA(1,1,1) model has a smaller AIC, I would select that.

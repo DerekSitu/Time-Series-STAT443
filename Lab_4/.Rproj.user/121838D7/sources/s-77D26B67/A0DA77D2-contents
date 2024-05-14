@@ -1,0 +1,70 @@
+---
+title: "Lab 4"
+author: "Derek Situ (62222807)"
+date: "07/02/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+A time series is stationary if its mean is constant, its variance is finite,
+and its autocovariance function only depends on the lag.
+
+## Question 2
+``` {r, echo = TRUE}
+dat <- read.csv("lab4data.csv", header = TRUE)
+dat_ts <- ts(dat$x, start = 1, end = 100)
+plot(dat_ts)
+```
+We see that this time series does not appear to satisfy the requirements of 
+stationarity since the mean does not appear to be constant. We can also guess
+that the autocovariance also depends on the time, i.e. not just on the lag.
+
+## Question 3
+``` {r, echo = TRUE}
+diffs <- diff(dat_ts)
+plot(diffs)
+acf(diffs, lag.max = 90)
+```
+From the plot of the differenced time series we see that the trend is less
+noticeable and there is seasonality. The acf oscillates with a period of 8.   
+
+## Question 4
+``` {r, echo = TRUE}
+diffs2 <- diff(diffs, lag = 8)
+plot(diffs2)
+acf(diffs2)
+```
+This series resembles white noise now that the seasonal effects have been
+removed.
+
+## Question 5
+
+I would use a SARIMA$(0, 1, 0), (0, 1, 0)_8$ model since the series has been differenced once to remove trend, and once at lag 8 to remove seasonality, so
+$1 = d = D$. The resulting series resembles white noise so the original series
+can be modeled with $0 = p = P = q = Q$.
+
+
+## Question 6
+### (6a)
+Given $Y_{t} = X_{t} - X_{t-1}$ and $W_{t} = Y_{t} - Y_{t-s}$, then
+$$W_{t} = X_{t} - X_{t-1} - (X_{t-s} - X_{t-s-1})$$
+$$ = X_{t} - X_{t_1} - X_{t_s} + X_{t-s-1}$$
+
+### (6b)
+Recall $Y_{t} = X_{t} - X_{t-1}$ and $BX_{t} = X_{t-1}$. Then,
+$$Y_{t} = X_{t} - BX_{t}$$
+$$ = (1-B)X_{t}$$
+
+### (6c)
+Given $B^{s} Y_{t} = Y_{t-s}$ and $W_{t} = Y_{t} - Y_{t_s}$, we have
+$$W_{t} = Y_{t} - B^{s}Y_{t}$$
+$$ = (1-B^{s})Y_{t}$$
+And since $Y_{t} = X_{t} - X_{t-1}$, we see that
+$$W_{t} = (1-B^{s})(X_{t} - X_{t-1})$$
+$$ = (1 - B^{s}) [(1-B)X_{t})]$$
